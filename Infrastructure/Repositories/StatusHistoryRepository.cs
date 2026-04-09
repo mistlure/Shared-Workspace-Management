@@ -35,7 +35,9 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<StatusHistory>> GetByWorkplaceIdAsync(int workplaceId)
         {
             using var connection = _connectionFactory.CreateConnection();
+
             string sql = "SELECT * FROM StatusHistory WHERE WorkplaceId = @WorkplaceId ORDER BY ChangedAt DESC";
+
             return await connection.QueryAsync<StatusHistory>(sql, new { WorkplaceId = workplaceId });
         }
     }
