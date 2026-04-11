@@ -28,7 +28,8 @@ namespace Infrastructure.Repositories
             string sql = @"
                 INSERT INTO Workspaces (Name, Location, MaxOccupationHours, PricePerHour)
                 VALUES (@Name, @Location, @MaxOccupationHours, @PricePerHour);
-                SELECT CAST(SCOPE_IDENTITY() as int)";
+                
+                SELECT last_insert_rowid();";
 
             return await connection.QuerySingleAsync<int>(sql, workspace);
         }

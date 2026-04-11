@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
                 INSERT INTO Users (FirstName, LastName, Email, PasswordHash, CreatedAt) 
                 VALUES (@FirstName, @LastName, @Email, @PasswordHash, @CreatedAt);
                 
-                SELECT CAST(SCOPE_IDENTITY() as int);";
+                SELECT last_insert_rowid();";
 
             return await connection.QuerySingleAsync<int>(sql, user);
         }

@@ -27,7 +27,8 @@ namespace Infrastructure.Repositories
             string sql = @"
                 INSERT INTO Workplaces (WorkspaceId, Name, CurrentStatus)
                 VALUES (@WorkspaceId, @Name, @CurrentStatus);
-                SELECT CAST(SCOPE_IDENTITY() as int);";
+                
+                SELECT last_insert_rowid();";
 
             return await connection.QuerySingleAsync<int>(sql, workplace);
         }
