@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,6 +18,16 @@ namespace API.Controllers
         }
 
 
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null) return NotFound(new { message = $"User with ID {id} not found." });
+
+            return Ok(user);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
