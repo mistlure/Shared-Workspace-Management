@@ -1,6 +1,8 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using API.DTOs;
 
 namespace API.Controllers
 {
@@ -22,13 +24,27 @@ namespace API.Controllers
         {
             var history = await _statusHistoryRepository.GetByWorkplaceIdAsync(workplaceId);
             // If no history is found, we can return an empty list or a not found message. Here, we'll return an empty list.
-            return Ok(history);
+            var response = history.Select(h => new StatusHistoryResponseDto
+            {
+                Id = h.Id,
+                WorkplaceId = h.WorkplaceId,
+                Status = h.Status,
+                ChangedAt = h.ChangedAt
+            }).ToList();
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] StatusHistory history)
+        public async Task<IActionResult> Create([FromBody] CreateStatusHistoryDto dto)
         {
-            if (history == null) return BadRequest();
+            if (dto == null) return BadRequest();
+
+            var history = new StatusHistory
+            {
+                WorkplaceId = dto.WorkplaceId,
+                Status = dto.Status
+            };
 
             await _statusHistoryRepository.AddAsync(history);
 
