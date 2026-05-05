@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using API.DTOs;
 
 namespace API.Controllers
 {
@@ -59,15 +60,28 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Occupancy occupancy)
+        public async Task<IActionResult> Add([FromBody] CreateOccupancyDto dto)
         {
-            if (occupancy == null) return BadRequest("Invalid occupancy data.");
+            if (dto == null) return BadRequest("Invalid data.");
 
             try
             {
+                // DTO -> Entity Mapping
+                var occupancy = new Occupancy
+                {
+                    WorkplaceId = dto.WorkplaceId,
+                    UserId = dto.UserId,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime
+                };
+
                 var createdOccupancy = await _occupancyService.CreateOccupancyAsync(occupancy);
 
-                return Ok(new { id = createdOccupancy.Id, message = "Occupancy created successfully!" });
+                return Ok(new
+                {
+                    id = createdOccupancy.Id,
+                    message = "Occupancy created successfully!"
+                });
             }
             catch (ArgumentException ex)
             {
