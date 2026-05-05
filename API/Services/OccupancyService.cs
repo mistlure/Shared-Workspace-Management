@@ -10,15 +10,18 @@ namespace API.Services
         private readonly IOccupancyRepository _occupancyRepository;
         private readonly IWorkplaceRepository _workplaceRepository;
         private readonly IStatusHistoryRepository _statusHistoryRepository;
+        private readonly IWorkspaceRepository _workspaceRepository;
 
         public OccupancyService(
             IOccupancyRepository occupancyRepository,
             IWorkplaceRepository workplaceRepository,
-            IStatusHistoryRepository statusHistoryRepository)
+            IStatusHistoryRepository statusHistoryRepository,
+            IWorkspaceRepository workspaceRepository)
         {
             _occupancyRepository = occupancyRepository;
             _workplaceRepository = workplaceRepository;
             _statusHistoryRepository = statusHistoryRepository;
+            _workspaceRepository = workspaceRepository;
         }
 
         public async Task<Occupancy> CreateOccupancyAsync(Occupancy occupancy)
@@ -38,6 +41,25 @@ namespace API.Services
                 throw new ArgumentException("You cannot book a workplace in the past.");
             }
 
+
+
+            var workplace = await _workplaceRepository.GetByIdAsync(occupancy.WorkplaceId);
+            if (workplace == null)
+                throw new ArgumentException($"Workplace with ID {occupancy.WorkplaceId} not found.");
+
+            var workspace = await _workspaceRepository.GetByIdAsync(workplace.WorkspaceId);
+            if (workspace == null)
+                throw new ArgumentException("Associated Workspace not found.");
+
+
+
+            TimeSpan requestedDuration = occupancy.EndTime.Value - occupancy.StartTime;
+
+            if (requestedDuration.TotalHours > workspace.MaxOccupationHours)
+            {
+                throw new ArgumentException($"Booking duration ({requestedDuration.TotalHours:F1} hours) exceeds the maximum allowed ({workspace.MaxOccupationHours} hours) for this workspace.");
+            }
+
             bool isOccupied = await _occupancyRepository.HasOverlapAsync(
                 occupancy.WorkplaceId,
                 occupancy.StartTime,
@@ -52,10 +74,6 @@ namespace API.Services
             {
                 int newId = await _occupancyRepository.AddAsync(occupancy);
                 occupancy.Id = newId;
-
-                var workplace = await _workplaceRepository.GetByIdAsync(occupancy.WorkplaceId);
-                if (workplace == null)
-                    throw new ArgumentException($"Workplace with ID {occupancy.WorkplaceId} not found.");
 
                 workplace.CurrentStatus = WorkplaceStatus.Occupied;
                 await _workplaceRepository.UpdateAsync(workplace);
