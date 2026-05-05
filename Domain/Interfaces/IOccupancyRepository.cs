@@ -15,5 +15,7 @@ namespace Domain.Interfaces
         Task<Occupancy?> GetActiveByWorkplaceIdAsync(int workplaceId);
         Task<int> AddAsync(Occupancy occupancy);
         Task UpdateAsync(Occupancy occupancy);
+        // Check for overlapping occupancy for a given workplace and time range.
+        Task<bool> HasOverlapAsync(int workplaceId, DateTime startTime, DateTime endTime);
     }
 }

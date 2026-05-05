@@ -85,5 +85,26 @@ namespace Infrastructure.Repositories
 
             await connection.ExecuteAsync(sql, occupancy);
         }
+
+        public async Task<bool> HasOverlapAsync(int workplaceId, DateTime startTime, DateTime endTime)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            string sql = @"
+                SELECT COUNT(1) 
+                FROM Occupancy 
+                WHERE WorkplaceId = @WorkplaceId 
+                  AND StartTime < @EndTime 
+                  AND EndTime > @StartTime";
+
+            int count = await connection.ExecuteScalarAsync<int>(sql, new
+            {
+                WorkplaceId = workplaceId,
+                StartTime = startTime,
+                EndTime = endTime
+            });
+
+            return count > 0;
+        }
     }
 }

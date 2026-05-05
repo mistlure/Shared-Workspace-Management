@@ -1,3 +1,4 @@
+using API.Services;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -26,6 +27,8 @@ namespace API
             builder.Services.AddScoped<IWorkplaceRepository, WorkplaceRepository>();
             builder.Services.AddScoped<IOccupancyRepository, OccupancyRepository>();
             builder.Services.AddScoped<IStatusHistoryRepository, StatusHistoryRepository>();
+
+            builder.Services.AddScoped<IOccupancyService, OccupancyService>();
 
             var app = builder.Build();
 

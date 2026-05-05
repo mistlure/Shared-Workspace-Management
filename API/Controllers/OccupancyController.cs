@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using API.Services;
+using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace API.Controllers
     public class OccupancyController : ControllerBase
     {
         private readonly IOccupancyRepository _occupancyRepository;
+        private readonly IOccupancyService _occupancyService;
 
-        public OccupancyController(IOccupancyRepository occupancyRepository)
+        public OccupancyController(IOccupancyRepository occupancyRepository, IOccupancyService occupancyService)
         {
             _occupancyRepository = occupancyRepository;
+            _occupancyService = occupancyService;
         }
 
 
@@ -60,11 +63,20 @@ namespace API.Controllers
         {
             if (occupancy == null) return BadRequest("Invalid occupancy data.");
 
-            // Later...
+            try
+            {
+                var createdOccupancy = await _occupancyService.CreateOccupancyAsync(occupancy);
 
-            int newId = await _occupancyRepository.AddAsync(occupancy);
-
-            return Ok(new { id = newId, message = "Occupancy created successfully!" });
+                return Ok(new { id = createdOccupancy.Id, message = "Occupancy created successfully!" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPut]
