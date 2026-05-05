@@ -51,7 +51,7 @@ namespace Infrastructure.Data
                     WorkplaceId INTEGER NOT NULL,
                     StartTime TEXT NOT NULL,
                     EndTime TEXT,
-                    TotalPrice REAL NOT NULL,
+                    TotalPrice REAL,
                     FOREIGN KEY (UserId) REFERENCES Users(Id),
                     FOREIGN KEY (WorkplaceId) REFERENCES Workplaces(Id)
                 );

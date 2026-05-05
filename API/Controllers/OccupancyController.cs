@@ -28,7 +28,17 @@ namespace API.Controllers
 
             if (occupancy == null) return NotFound(new { message = $"Occupancy with ID {id} not found." });
 
-            return Ok(occupancy);
+            var response = new OccupancyResponseDto
+            {
+                Id = occupancy.Id,
+                UserId = occupancy.UserId,
+                WorkplaceId = occupancy.WorkplaceId,
+                StartTime = occupancy.StartTime,
+                EndTime = occupancy.EndTime,
+                TotalPrice = occupancy.TotalPrice
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("active")]
@@ -36,36 +46,74 @@ namespace API.Controllers
         {
             var activeOccupancies = await _occupancyRepository.GetAllActiveAsync();
 
-            return Ok(activeOccupancies);
+            var response = activeOccupancies.Select(o => new OccupancyResponseDto
+            {
+                Id = o.Id,
+                UserId = o.UserId,
+                WorkplaceId = o.WorkplaceId,
+                StartTime = o.StartTime,
+                EndTime = o.EndTime,
+                TotalPrice = o.TotalPrice
+            }).ToList();
+
+            return Ok(response);
         }
 
         [HttpGet("user/{userId}/active")]
         public async Task<IActionResult> GetActiveByUserId(int userId)
         {
-            var activeOccupancy = await _occupancyRepository.GetActiveByUserIdAsync(userId);
+            var occupancy = await _occupancyRepository.GetActiveByUserIdAsync(userId);
 
-            if (activeOccupancy == null) return NotFound(new { message = $"No active occupancy found for user ID {userId}." });
+            if (occupancy == null) return NotFound(new { message = $"No active occupancy found for user ID {userId}." });
 
-            return Ok(activeOccupancy);
+            var response = new OccupancyResponseDto
+            {
+                Id = occupancy.Id,
+                UserId = occupancy.UserId,
+                WorkplaceId = occupancy.WorkplaceId,
+                StartTime = occupancy.StartTime,
+                EndTime = occupancy.EndTime,
+                TotalPrice = occupancy.TotalPrice
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("workplace/{workplaceId}/active")]
         public async Task<IActionResult> GetActiveByWorkplaceId(int workplaceId)
         {
-            var activeOccupancy = await _occupancyRepository.GetActiveByWorkplaceIdAsync(workplaceId);
+            var occupancy = await _occupancyRepository.GetActiveByWorkplaceIdAsync(workplaceId);
 
-            if (activeOccupancy == null) return NotFound(new { message = $"No active occupancy found for workplace ID {workplaceId}." });
+            if (occupancy == null) return NotFound(new { message = $"No active occupancy found for workplace ID {workplaceId}." });
 
-            return Ok(activeOccupancy);
+            var response = new OccupancyResponseDto
+            {
+                Id = occupancy.Id,
+                UserId = occupancy.UserId,
+                WorkplaceId = occupancy.WorkplaceId,
+                StartTime = occupancy.StartTime,
+                EndTime = occupancy.EndTime,
+                TotalPrice = occupancy.TotalPrice
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Occupancy occupancy)
+        public async Task<IActionResult> Add([FromBody] CreateOccupancyDto dto)
         {
-            if (occupancy == null) return BadRequest("Invalid occupancy data.");
+            if (dto == null) return BadRequest("Invalid occupancy data.");
 
             try
             {
+                var occupancy = new Occupancy
+                {
+                    UserId = dto.UserId,
+                    WorkplaceId = dto.WorkplaceId,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime
+                };
+
                 var createdOccupancy = await _occupancyService.CreateOccupancyAsync(occupancy);
 
                 return Ok(new { id = createdOccupancy.Id, message = "Occupancy created successfully!" });
@@ -81,14 +129,20 @@ namespace API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] Occupancy occupancy)
+        public async Task<IActionResult> Update([FromBody] UpdateOccupancyDto dto)
         {
-            if (occupancy == null) return BadRequest("Invalid occupancy data.");
+            if (dto == null) return BadRequest("Invalid occupancy data.");
 
-            var existingOccupancy = await _occupancyRepository.GetByIdAsync(occupancy.Id);
-            if (existingOccupancy == null) return NotFound(new { message = $"Occupancy with ID {occupancy.Id} not found." });
+            var existingOccupancy = await _occupancyRepository.GetByIdAsync(dto.Id);
+            if (existingOccupancy == null) return NotFound(new { message = $"Occupancy with ID {dto.Id} not found." });
 
-            await _occupancyRepository.UpdateAsync(occupancy);
+            existingOccupancy.UserId = dto.UserId;
+            existingOccupancy.WorkplaceId = dto.WorkplaceId;
+            existingOccupancy.StartTime = dto.StartTime;
+            existingOccupancy.EndTime = dto.EndTime;
+            existingOccupancy.TotalPrice = dto.TotalPrice;
+
+            await _occupancyRepository.UpdateAsync(existingOccupancy);
 
             return NoContent();
         }
