@@ -10,5 +10,6 @@ namespace Domain.Interfaces
     public interface IOccupancyService
     {
         Task<Occupancy> CreateOccupancyAsync(Occupancy occupancy);
+        Task FinishOccupancyAsync(int occupancyId);
     }
 }

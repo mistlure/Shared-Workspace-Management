@@ -72,5 +72,39 @@ namespace API.Services
             }
             return occupancy;
         }
+
+        public async Task FinishOccupancyAsync(int occupancyId)
+        {
+            var occupancy = await _occupancyRepository.GetByIdAsync(occupancyId);
+
+            if (occupancy == null)
+            {
+                throw new ArgumentException($"Occupancy with ID {occupancyId} not found.");
+            }
+
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                occupancy.EndTime = DateTime.UtcNow;
+
+                await _occupancyRepository.UpdateAsync(occupancy);
+
+                var workplace = await _workplaceRepository.GetByIdAsync(occupancy.WorkplaceId);
+                if (workplace != null)
+                {
+                    workplace.CurrentStatus = WorkplaceStatus.Available;
+                    await _workplaceRepository.UpdateAsync(workplace);
+                }
+
+                var historyRecord = new StatusHistory
+                {
+                    WorkplaceId = occupancy.WorkplaceId,
+                    Status = WorkplaceStatus.Available,
+                    ChangedAt = DateTime.UtcNow
+                };
+                await _statusHistoryRepository.AddAsync(historyRecord);
+
+                scope.Complete();
+            }
+        }
     }
 }

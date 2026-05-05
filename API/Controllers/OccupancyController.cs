@@ -91,5 +91,19 @@ namespace API.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{id}/finish")]
+        public async Task<IActionResult> FinishOccupancy(int id)
+        {
+            try
+            {
+                await _occupancyService.FinishOccupancyAsync(id);
+                return Ok(new { message = $"Occupancy {id} successfully finished and workplace is now available." });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }
