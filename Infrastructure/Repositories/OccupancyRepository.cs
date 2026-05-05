@@ -38,27 +38,27 @@ namespace Infrastructure.Repositories
         {
             using var connection = _connectionFactory.CreateConnection();
 
-            string sql = "SELECT * FROM Occupancy WHERE UserId = @UserId AND EndTime IS NULL";
+            string sql = "SELECT * FROM Occupancy WHERE UserId = @UserId AND StartTime <= @Now AND EndTime >= @Now LIMIT 1";
 
-            return await connection.QueryFirstOrDefaultAsync<Occupancy>(sql, new { UserId = userId });
+            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { UserId = userId, Now = DateTime.UtcNow });
         }
 
         public async Task<Occupancy?> GetActiveByWorkplaceIdAsync(int workplaceId)
         {
             using var connection = _connectionFactory.CreateConnection();
 
-            string sql = "SELECT * FROM Occupancy WHERE WorkplaceId = @WorkplaceId AND EndTime IS NULL";
+            string sql = "SELECT * FROM Occupancy WHERE WorkplaceId = @WorkplaceId AND StartTime <= @Now AND EndTime >= @Now LIMIT 1";
 
-            return await connection.QueryFirstOrDefaultAsync<Occupancy>(sql, new { WorkplaceId = workplaceId });
+            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { WorkplaceId = workplaceId, Now = DateTime.UtcNow });
         }
 
         public async Task<IEnumerable<Occupancy>> GetAllActiveAsync()
         {
             using var connection = _connectionFactory.CreateConnection();
-            
-            string sql = "SELECT * FROM Occupancy WHERE EndTime IS NULL";
 
-            return await connection.QueryAsync<Occupancy>(sql);
+            string sql = "SELECT * FROM Occupancy WHERE StartTime <= @Now AND EndTime >= @Now";
+
+            return await connection.QueryAsync<Occupancy>(sql, new { Now = DateTime.UtcNow });
         }
 
         public async Task<Occupancy?> GetByIdAsync(int id)
