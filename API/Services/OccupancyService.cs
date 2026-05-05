@@ -1,15 +1,24 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Enums;
+using System.Transactions;
 
 namespace API.Services
 {
     public class OccupancyService : IOccupancyService
     {
         private readonly IOccupancyRepository _occupancyRepository;
+        private readonly IWorkplaceRepository _workplaceRepository;
+        private readonly IStatusHistoryRepository _statusHistoryRepository;
 
-        public OccupancyService(IOccupancyRepository occupancyRepository)
+        public OccupancyService(
+            IOccupancyRepository occupancyRepository,
+            IWorkplaceRepository workplaceRepository,
+            IStatusHistoryRepository statusHistoryRepository)
         {
             _occupancyRepository = occupancyRepository;
+            _workplaceRepository = workplaceRepository;
+            _statusHistoryRepository = statusHistoryRepository;
         }
 
         public async Task<Occupancy> CreateOccupancyAsync(Occupancy occupancy)
@@ -39,9 +48,28 @@ namespace API.Services
                 throw new InvalidOperationException("This workplace is already booked for the selected time.");
             }
 
-            int newId = await _occupancyRepository.AddAsync(occupancy);
-            occupancy.Id = newId;
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                int newId = await _occupancyRepository.AddAsync(occupancy);
+                occupancy.Id = newId;
 
+                var workplace = await _workplaceRepository.GetByIdAsync(occupancy.WorkplaceId);
+                if (workplace == null)
+                    throw new ArgumentException($"Workplace with ID {occupancy.WorkplaceId} not found.");
+
+                workplace.CurrentStatus = WorkplaceStatus.Occupied;
+                await _workplaceRepository.UpdateAsync(workplace);
+
+                var historyRecord = new StatusHistory
+                {
+                    WorkplaceId = occupancy.WorkplaceId,
+                    Status = WorkplaceStatus.Occupied,
+                    ChangedAt = DateTime.UtcNow
+                };
+                await _statusHistoryRepository.AddAsync(historyRecord);
+
+                scope.Complete();
+            }
             return occupancy;
         }
     }
