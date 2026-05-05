@@ -1,6 +1,8 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using API.DTOs;
+using Domain.Enums;
 
 namespace API.Controllers
 {
@@ -22,7 +24,15 @@ namespace API.Controllers
         {
             var workplaces = await _workplaceRepository.GetAllAsync();
 
-            return Ok(workplaces);
+            var response = workplaces.Select(w => new WorkplaceResponseDto
+            {
+                Id = w.Id,
+                WorkspaceId = w.WorkspaceId,
+                Name = w.Name,
+                CurrentStatus = w.CurrentStatus
+            }).ToList();
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
@@ -32,17 +42,40 @@ namespace API.Controllers
 
             if (workplace == null) return NotFound(new { message = $"Workplace with ID {id} not found." });
 
-            return Ok(workplace);
+            var response = new WorkplaceResponseDto
+            {
+                Id = workplace.Id,
+                WorkspaceId = workplace.WorkspaceId,
+                Name = workplace.Name,
+                CurrentStatus = workplace.CurrentStatus
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Workplace workplace)
+        public async Task<IActionResult> Create([FromBody] CreateWorkplaceDto dto)
         {
-            if (workplace == null) return BadRequest();
+            if (dto == null) return BadRequest();
+
+            var workplace = new Workplace
+            {
+                WorkspaceId = dto.WorkspaceId,
+                Name = dto.Name,
+                CurrentStatus = WorkplaceStatus.Available
+            };
 
             int newId = await _workplaceRepository.AddAsync(workplace);
 
-            return Ok(new { id = newId, message = "Workplace created successfully!" });
+            var response = new WorkplaceResponseDto
+            {
+                Id = newId,
+                WorkspaceId = workplace.WorkspaceId,
+                Name = workplace.Name,
+                CurrentStatus = workplace.CurrentStatus
+            };
+
+            return Ok(new { data = response, message = "Workplace created successfully!" });
         }
     }
 }
