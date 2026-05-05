@@ -60,28 +60,15 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] CreateOccupancyDto dto)
+        public async Task<IActionResult> Add([FromBody] Occupancy occupancy)
         {
-            if (dto == null) return BadRequest("Invalid data.");
+            if (occupancy == null) return BadRequest("Invalid occupancy data.");
 
             try
             {
-                // DTO -> Entity Mapping
-                var occupancy = new Occupancy
-                {
-                    WorkplaceId = dto.WorkplaceId,
-                    UserId = dto.UserId,
-                    StartTime = dto.StartTime,
-                    EndTime = dto.EndTime
-                };
-
                 var createdOccupancy = await _occupancyService.CreateOccupancyAsync(occupancy);
 
-                return Ok(new
-                {
-                    id = createdOccupancy.Id,
-                    message = "Occupancy created successfully!"
-                });
+                return Ok(new { id = createdOccupancy.Id, message = "Occupancy created successfully!" });
             }
             catch (ArgumentException ex)
             {

@@ -2,6 +2,7 @@
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using API.DTOs;
 
 namespace API.Controllers
 {
@@ -26,23 +27,61 @@ namespace API.Controllers
 
             if (user == null) return NotFound(new { message = $"User with ID {id} not found." });
 
-            return Ok(user);
+            var response = new UserResponseDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(response);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userRepository.GetAllAsync();
-            return Ok(users);
+
+            var response = users.Select(user => new UserResponseDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt
+            }).ToList();
+
+            return Ok(response);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] UserRegisterDto dto)
         {
-            if (user == null) return BadRequest();
-            user.CreatedAt = DateTime.UtcNow;
+            if (dto == null) return BadRequest();
+
+            var user = new User
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PasswordHash = dto.Password,
+                CreatedAt = DateTime.Now
+            };
+
             int newId = await _userRepository.AddAsync(user);
-            return Ok(new { id = newId, message = "User created successfully!" });
+
+            var response = new UserResponseDto
+            {
+                Id = newId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(new { data = response, message = "User created successfully!" });
         }
     }
 }
