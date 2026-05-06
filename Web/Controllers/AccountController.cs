@@ -1,5 +1,8 @@
 ﻿using API.DTOs;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Web.Controllers
 {
@@ -53,11 +56,41 @@ namespace Web.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Index", "Workspaces");
+                var result = await response.Content.ReadFromJsonAsync<LoginResponseWrapper>();
+                var user = result?.Data;
+
+                if (user != null)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                        new Claim(ClaimTypes.Email, user.Email)
+                    };
+
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                    return RedirectToAction("Index", "Workspaces");
+                }
             }
 
             ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(dto);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Workspaces");
+        }
+    }
+    public class LoginResponseWrapper
+    {
+        public UserResponseDto? Data { get; set; }
+        public string? Message { get; set; }
     }
 }
