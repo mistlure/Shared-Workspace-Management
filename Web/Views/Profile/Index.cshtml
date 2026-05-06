@@ -48,6 +48,7 @@
     .social-text-muted {
         color: #818c99;
     }
+
     .btn-soft-danger {
         color: #e4606d;
         background-color: rgba(228, 96, 109, 0.1);
@@ -102,7 +103,8 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr style="border-bottom: 1px solid #f2f3f5;">
+                                    
+                                    <tr id="booking-row-@item.Id" style="border-bottom: 1px solid #f2f3f5;">
                                         <td class="fw-bold text-dark py-3">Desk #@item.WorkplaceId</td>
                                         <td class="social-text-muted py-3">@item.StartTime.ToString("g")</td>
                                         <td class="social-text-muted py-3">@item.EndTime?.ToString("g")</td>
@@ -111,7 +113,7 @@
                                                 Cancel
                                             </button>
 
-                                            <!-- Модальное окно -->
+                                            
                                             <div class="modal fade text-start" id="cancelModal-@item.Id" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered modal-sm">
                                                     <div class="modal-content text-center border-0 shadow-lg" style="border-radius: 12px;">
@@ -123,12 +125,14 @@
                                                             <h5 class="fw-bold text-dark mb-3">Cancel Booking?</h5>
                                                             <p class="social-text-muted small mb-4 text-wrap">Are you sure you want to cancel your booking for <br /><b>Desk #@item.WorkplaceId</b>?</p>
 
-                                                            <form asp-action="CancelBooking" asp-route-id="@item.Id" method="post">
-                                                                <div class="d-flex justify-content-center gap-2">
-                                                                    <button type="button" class="btn btn-light btn-sm px-3 fw-semibold" style="border-radius: 6px;" data-bs-dismiss="modal">Keep It</button>
-                                                                    <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold" style="border-radius: 6px; background-color: #e4606d; border: none;">Yes, Cancel</button>
-                                                                </div>
-                                                            </form>
+                                                            <div class="d-flex justify-content-center gap-2">
+                                                                <button type="button" class="btn btn-light btn-sm px-3 fw-semibold" style="border-radius: 6px;" data-bs-dismiss="modal">Keep It</button>
+
+                                                                
+                                                                <button type="button" onclick="cancelBooking(@item.Id)" class="btn btn-danger btn-sm px-3 fw-bold" style="border-radius: 6px; background-color: #e4606d; border: none;">
+                                                                    Yes, Cancel
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -151,3 +155,40 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function cancelBooking(id) {
+            try {
+                
+                let response = await fetch(`/Profile/CancelBooking/${id}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    
+                    let modalEl = document.getElementById(`cancelModal-${id}`);
+                    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    modalInstance.hide();
+
+                    
+                    let row = document.getElementById(`booking-row-${id}`);
+                    row.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                    row.style.opacity = "0";
+                    row.style.transform = "translateX(-20px)"; 
+
+                    
+                    setTimeout(() => {
+                        row.remove();
+                    }, 400);
+
+                } else {
+                    alert('Error: Failed to cancel booking. Please try again.');
+                }
+            } catch (error) {
+                console.error('AJAX Error:', error);
+                alert('Network error occurred.');
+            }
+        }
+    </script>
+}

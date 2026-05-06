@@ -66,15 +66,14 @@ namespace Web.Controllers
         public async Task<IActionResult> CancelBooking(int id)
         {
             var client = _httpClientFactory.CreateClient("MyAPI");
-
             var response = await client.PostAsync($"api/Occupancy/{id}/finish", null);
 
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "Booking finished successfully.";
-            else
-                TempData["ErrorMessage"] = "Failed to finish booking.";
+            {
+                return Ok(new { success = true, message = "Booking finished successfully." });
+            }
 
-            return RedirectToAction("Index");
+            return BadRequest(new { success = false, message = "Failed to finish booking." });
         }
     }
 }
