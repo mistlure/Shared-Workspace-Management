@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class ApiDescriptionController : ControllerBase
@@ -28,7 +30,15 @@ namespace API.Controllers
 
                             Route = method.GetCustomAttribute<RouteAttribute>()?.Template
                                     ?? method.GetCustomAttribute<HttpMethodAttribute>()?.Template
-                                    ?? "Default"
+                                    ?? "Default",
+
+                            Parameters = method.GetParameters().Select(p => new
+                            {
+                                Name = p.Name,
+                                Type = p.ParameterType.Name
+                            }),
+
+                            ReturnType = method.ReturnType.Name
                         })
                 });
             return Ok(new
