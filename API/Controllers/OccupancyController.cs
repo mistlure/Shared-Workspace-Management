@@ -99,6 +99,26 @@ namespace API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId)
+        {
+            var activeOccupancies = await _occupancyRepository.GetAllActiveAsync();
+
+            var response = activeOccupancies
+                .Where(o => o.UserId == userId)
+                .Select(o => new OccupancyResponseDto
+                {
+                    Id = o.Id,
+                    UserId = o.UserId,
+                    WorkplaceId = o.WorkplaceId,
+                    StartTime = o.StartTime,
+                    EndTime = o.EndTime,
+                    TotalPrice = o.TotalPrice
+                }).ToList();
+
+            return Ok(response);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CreateOccupancyDto dto)
         {

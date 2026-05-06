@@ -40,7 +40,7 @@ namespace Infrastructure.Repositories
 
             string sql = "SELECT * FROM Occupancy WHERE UserId = @UserId AND StartTime <= @Now AND EndTime >= @Now LIMIT 1";
 
-            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { UserId = userId, Now = DateTime.UtcNow });
+            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { UserId = userId, Now = DateTime.Now });
         }
 
         public async Task<Occupancy?> GetActiveByWorkplaceIdAsync(int workplaceId)
@@ -49,7 +49,7 @@ namespace Infrastructure.Repositories
 
             string sql = "SELECT * FROM Occupancy WHERE WorkplaceId = @WorkplaceId AND StartTime <= @Now AND EndTime >= @Now LIMIT 1";
 
-            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { WorkplaceId = workplaceId, Now = DateTime.UtcNow });
+            return await connection.QuerySingleOrDefaultAsync<Occupancy>(sql, new { WorkplaceId = workplaceId, Now = DateTime.Now });
         }
 
         public async Task<IEnumerable<Occupancy>> GetAllActiveAsync()
@@ -58,7 +58,7 @@ namespace Infrastructure.Repositories
 
             string sql = "SELECT * FROM Occupancy WHERE StartTime <= @Now AND EndTime >= @Now";
 
-            return await connection.QueryAsync<Occupancy>(sql, new { Now = DateTime.UtcNow });
+            return await connection.QueryAsync<Occupancy>(sql, new { Now = DateTime.Now });
         }
 
         public async Task<Occupancy?> GetByIdAsync(int id)

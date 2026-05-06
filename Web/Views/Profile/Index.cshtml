@@ -1,0 +1,69 @@
+﻿@model IEnumerable<API.DTOs.OccupancyResponseDto>
+@{
+    var user = ViewBag.User as API.DTOs.UserResponseDto;
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <div class="mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    @user?.FirstName[0]
+                </div>
+                <h3 class="fw-bold mb-1">@user?.FirstName @user?.LastName</h3>
+                <p class="text-muted mb-4">@user?.Email</p>
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2">Edit Profile (Soon)</button>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4">
+                <h4 class="fw-bold mb-4 text-primary">My Active Bookings</h4>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success border-0 shadow-sm small">@TempData["SuccessMessage"]</div>
+                }
+
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="text-secondary small text-uppercase">
+                                <tr>
+                                    <th>Workplace</th>
+                                    <th>Started</th>
+                                    <th>Ends</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-dark">Desk #@item.WorkplaceId</td>
+                                        <td class="small">@item.StartTime.ToString("g")</td>
+                                        <td class="small">@item.EndTime?.ToString("g")</td>
+                                        <td>
+                                            <form asp-action="CancelBooking" asp-route-id="@item.Id" method="post">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0">Cancel</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <p class="text-muted mb-0">You don't have any active bookings.</p>
+                        <a asp-controller="Workspaces" asp-action="Index" class="btn btn-link">Find a desk</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
