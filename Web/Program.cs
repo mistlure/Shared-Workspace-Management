@@ -10,9 +10,19 @@ namespace Web
 
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddHttpClient("MyAPI", client =>
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddHttpClient("MyAPI", (serviceProvider, client) =>
             {
                 client.BaseAddress = new Uri("https://localhost:7199/");
+
+                var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                var context = httpContextAccessor.HttpContext;
+
+                if (context != null && context.Request.Cookies.TryGetValue("JwtToken", out var token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
             });
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

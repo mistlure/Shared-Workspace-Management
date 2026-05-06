@@ -1,10 +1,12 @@
-﻿using Domain.Entities;
+﻿using API.DTOs;
+using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using API.DTOs;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WorkspacesController : ControllerBase

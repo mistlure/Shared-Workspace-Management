@@ -1,11 +1,13 @@
-﻿using Domain.Entities;
-using Domain.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+﻿using System.Linq;
 using API.DTOs;
+using Domain.Entities;
+using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class StatusHistoryController : ControllerBase

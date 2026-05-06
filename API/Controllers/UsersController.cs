@@ -1,22 +1,31 @@
-﻿using Domain.Entities;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using API.DTOs;
+using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using API.DTOs;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     // ControllerBase gives us access to features like model binding, validation, and HTTP response handling.
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _config;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUserRepository userRepository, IConfiguration config)
         {
             _userRepository = userRepository;
+            _config = config;
         }
+
 
 
 
@@ -56,6 +65,7 @@ namespace API.Controllers
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UserRegisterDto dto)
         {
@@ -84,13 +94,13 @@ namespace API.Controllers
             return Ok(new { data = response, message = "User created successfully!" });
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
             if (dto == null) return BadRequest();
 
             var users = await _userRepository.GetAllAsync();
-
             var user = users.FirstOrDefault(u => u.Email == dto.Email && u.PasswordHash == dto.Password);
 
             if (user == null)
@@ -107,7 +117,41 @@ namespace API.Controllers
                 CreatedAt = user.CreatedAt
             };
 
-            return Ok(new { data = response, message = "Login successful!" });
+            var tokenString = GenerateJwtToken(user);
+
+            return Ok(new
+            {
+                token = tokenString,
+                data = response,
+                message = "Login successful!"
+            });
+        }
+
+
+        // ------------------------
+
+
+        private string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("FirstName", user.FirstName)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

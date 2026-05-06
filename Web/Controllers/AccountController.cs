@@ -78,9 +78,9 @@ namespace Web.Controllers
                 var result = await response.Content.ReadFromJsonAsync<LoginResponseWrapper>();
                 var user = result?.Data;
 
-                if (user != null)
+
+                if (user != null && !string.IsNullOrEmpty(result?.Token))
                 {
-                    // Create claims for the authenticated user (Cookies)
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -92,6 +92,14 @@ namespace Web.Controllers
                     var principal = new ClaimsPrincipal(identity);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                    Response.Cookies.Append("JwtToken", result.Token, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddDays(1)
+                    });
 
                     return RedirectToAction("Index", "Workspaces");
                 }
@@ -109,6 +117,7 @@ namespace Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            Response.Cookies.Delete("JwtToken");
             return RedirectToAction("Index", "Workspaces");
         }
     }
@@ -118,6 +127,7 @@ namespace Web.Controllers
     /// </summary>
     public class LoginResponseWrapper
     {
+        public string? Token { get; set; }
         public UserResponseDto? Data { get; set; }
         public string? Message { get; set; }
     }
