@@ -1,8 +1,8 @@
-﻿<Window x:Class="Desktop.MainWindow"
+﻿<Window x:Class="Desktop.EditWorkplaceWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Admin Login" Width="350" SizeToContent="Height"
-        WindowStartupLocation="CenterScreen"
+        Title="Workplace" Width="350" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
         Background="#f2f3f5">
 
     <Window.Resources>
@@ -22,22 +22,6 @@
             </Setter>
         </Style>
 
-        <Style TargetType="PasswordBox">
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#e1e3e6"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border Background="White" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style TargetType="Button">
             <Setter Property="Background" Value="#7ca890"/>
             <Setter Property="Foreground" Value="White"/>
@@ -47,7 +31,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -65,24 +49,24 @@
     </Window.Resources>
 
     <Grid>
-        <Border Background="White" CornerRadius="12" Margin="30" Padding="25">
+        <Border Background="White" CornerRadius="12" Margin="25" Padding="25">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" ShadowDepth="4" Opacity="0.05" Color="Black"/>
             </Border.Effect>
 
             <StackPanel>
-                <TextBlock Text="Admin Panel" FontSize="24" FontWeight="Bold" Foreground="#222222" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-                <TextBlock Text="Sign in to continue" FontSize="13" Foreground="#818c99" HorizontalAlignment="Center" Margin="0,0,0,25"/>
+                <TextBlock Text="Workplace Details" FontSize="20" FontWeight="Bold" Foreground="#222222" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                <TextBlock Text="Email Address" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <TextBox x:Name="EmailTextBox" Margin="0,0,0,15"/>
+                <TextBlock Text="Workspace ID (Parent)" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBox x:Name="WorkspaceIdTextBox" Margin="0,0,0,15"/>
 
-                <TextBlock Text="Password" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <PasswordBox x:Name="PasswordBox" Margin="0,0,0,25"/>
+                <TextBlock Text="Name / Number" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBox x:Name="NameTextBox" Margin="0,0,0,15"/>
 
-                <Button x:Name="LoginButton" Content="Login" Height="40" Click="LoginButton_Click"/>
+                <TextBlock x:Name="StatusLabel" Text="Status (0=Avail, 1=Occ, 2=Block)" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <TextBox x:Name="StatusTextBox" Margin="0,0,0,25"/>
 
-                <TextBlock x:Name="StatusTextBlock" Margin="0,15,0,0" Foreground="#e4606d" FontSize="12" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                <Button Content="Save Workplace" Height="40" Click="Save_Click"/>
             </StackPanel>
         </Border>
     </Grid>

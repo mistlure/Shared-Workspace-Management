@@ -62,6 +62,19 @@ namespace Infrastructure.Repositories
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Id = id });
         }
 
+        public async Task UpdateAsync(User user)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+            string sql = @"
+        UPDATE Users 
+        SET FirstName = @FirstName, 
+            LastName = @LastName, 
+            Email = @Email 
+        WHERE Id = @Id";
+
+            await connection.ExecuteAsync(sql, user);
+        }
+
         public async Task DeleteAsync(int id)
         {
             using var connection = _connectionFactory.CreateConnection();

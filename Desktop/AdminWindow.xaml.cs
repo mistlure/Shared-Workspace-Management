@@ -17,29 +17,87 @@ namespace Desktop
 
         private async void LoadData()
         {
-            var users = await _apiService.GetUsersAsync();
-            UsersDataGrid.ItemsSource = users;
+            UsersDataGrid.ItemsSource = await _apiService.GetUsersAsync();
+            WorkspacesDataGrid.ItemsSource = await _apiService.GetWorkspacesAsync();
+            WorkplacesDataGrid.ItemsSource = await _apiService.GetWorkplacesAsync();
         }
 
-        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is int userId)
-            {
-                var result = MessageBox.Show($"Delete user {userId}?", "Confirm", MessageBoxButton.YesNo);
 
-                if (result == MessageBoxResult.Yes)
+
+        // ================= USERS =================
+        private async void DeleteUser_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int id && MessageBox.Show("Delete user?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                if (await _apiService.DeleteUserAsync(id)) LoadData();
+            }
+        }
+
+        private void EditUser_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is UserResponseDto user)
+            {
+                var editWindow = new EditUserWindow(user, _apiService) { Owner = this };
+                if (editWindow.ShowDialog() == true)
                 {
-                    bool deleted = await _apiService.DeleteUserAsync(userId);
-                    if (deleted)
-                    {
-                        LoadData();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Delete failed. Check if user has related records.");
-                    }
+                    LoadData();
                 }
+            }
+        }
+
+        // ================= WORKSPACES =================
+        private void AddWorkspace_Click(object sender, RoutedEventArgs e)
+        {
+            var addWindow = new EditWorkspaceWindow(null, _apiService) { Owner = this };
+            if (addWindow.ShowDialog() == true) LoadData();
+        }
+
+        private void EditWorkspace_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is WorkspaceResponseDto workspace)
+            {
+                var editWindow = new EditWorkspaceWindow(workspace, _apiService) { Owner = this };
+                if (editWindow.ShowDialog() == true) LoadData();
+            }
+        }
+
+        private async void DeleteWorkspace_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int id && MessageBox.Show("Delete workspace and all related workplaces?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                bool success = await _apiService.DeleteWorkspaceAsync(id);
+                if (success)
+                {
+                    LoadData();
+                }
+                else
+                {
+                    MessageBox.Show($"Не удалось удалить здание с ID {id}. Проверь работу сервера.");
+                }
+            }
+        }
+
+        // ================= WORKPLACES =================
+        private void AddWorkplace_Click(object sender, RoutedEventArgs e)
+        {
+            var addWindow = new EditWorkplaceWindow(null, _apiService) { Owner = this };
+            if (addWindow.ShowDialog() == true) LoadData();
+        }
+
+        private void EditWorkplace_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is WorkplaceResponseDto workplace)
+            {
+                var editWindow = new EditWorkplaceWindow(workplace, _apiService) { Owner = this };
+                if (editWindow.ShowDialog() == true) LoadData();
+            }
+        }
+
+        private async void DeleteWorkplace_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int id && MessageBox.Show("Delete workplace?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                if (await _apiService.DeleteWorkplaceAsync(id)) LoadData();
             }
         }
     }

@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     // ControllerBase gives us access to features like model binding, validation, and HTTP response handling.
@@ -125,6 +125,23 @@ namespace API.Controllers
                 data = response,
                 message = "Login successful!"
             });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserResponseDto dto)
+        {
+            if (dto == null || id != dto.Id) return BadRequest(new { message = "Invalid data" });
+
+            var existingUser = await _userRepository.GetByIdAsync(id);
+            if (existingUser == null) return NotFound(new { message = "User not found" });
+
+            existingUser.FirstName = dto.FirstName;
+            existingUser.LastName = dto.LastName;
+            existingUser.Email = dto.Email;
+
+            await _userRepository.UpdateAsync(existingUser);
+
+            return Ok(new { message = "User updated successfully" });
         }
 
         [HttpDelete("{id}")]

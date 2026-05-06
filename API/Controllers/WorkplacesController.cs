@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WorkplacesController : ControllerBase
@@ -96,6 +96,32 @@ namespace API.Controllers
             };
 
             return Ok(new { data = response, message = "Workplace created successfully!" });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] WorkplaceResponseDto dto)
+        {
+            if (dto == null || id != dto.Id) return BadRequest();
+
+            var existing = await _workplaceRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            existing.WorkspaceId = dto.WorkspaceId;
+            existing.Name = dto.Name;
+            existing.CurrentStatus = dto.CurrentStatus;
+
+            await _workplaceRepository.UpdateAsync(existing);
+            return Ok(new { message = "Workplace updated!" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var existing = await _workplaceRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            await _workplaceRepository.DeleteAsync(id);
+            return Ok(new { message = "Workplace deleted!" });
         }
     }
 }

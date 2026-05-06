@@ -36,10 +36,9 @@ namespace Infrastructure.Repositories
         public async Task DeleteAsync(int id)
         {
             using var connection = _connectionFactory.CreateConnection();
-
-            string sql = "DELETE FROM Workplaces WHERE Id = @Id";
-
-            await connection.ExecuteAsync(sql, new { Id = id });
+            await connection.ExecuteAsync("DELETE FROM Occupancy WHERE WorkplaceId = @Id", new { Id = id });
+            await connection.ExecuteAsync("DELETE FROM StatusHistory WHERE WorkplaceId = @Id", new { Id = id });
+            await connection.ExecuteAsync("DELETE FROM Workplaces WHERE Id = @Id", new { Id = id });
         }
 
         public async Task<IEnumerable<Workplace>> GetAllAsync()

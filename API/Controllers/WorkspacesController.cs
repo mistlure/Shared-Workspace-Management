@@ -82,5 +82,33 @@ namespace API.Controllers
 
             return Ok(new { data = response, message = "Workspace created successfully!" });
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] WorkspaceResponseDto dto)
+        {
+            if (dto == null || id != dto.Id) return BadRequest("Invalid data");
+
+            var existingWorkspace = await _workspaceRepository.GetByIdAsync(id);
+            if (existingWorkspace == null) return NotFound($"Workspace with ID {id} not found.");
+
+            existingWorkspace.Name = dto.Name;
+            existingWorkspace.Location = dto.Location;
+            existingWorkspace.MaxOccupationHours = dto.MaxOccupationHours;
+            existingWorkspace.PricePerHour = dto.PricePerHour;
+
+            await _workspaceRepository.UpdateAsync(existingWorkspace);
+
+            return Ok(new { message = "Workspace updated successfully!" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var existing = await _workspaceRepository.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            await _workspaceRepository.DeleteAsync(id);
+            return Ok(new { message = "Workspace deleted successfully!" });
+        }
     }
 }
