@@ -4,53 +4,94 @@
     ViewData["Title"] = "Register";
 }
 
+<style>
+    .social-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e1e3e6;
+        background-color: #ffffff;
+    }
+
+    .social-input {
+        background-color: #f2f3f5;
+        border: 1px solid #f2f3f5;
+        border-radius: 8px;
+        color: #000;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .social-input:focus {
+            background-color: #ffffff;
+            border-color: #7ca890;
+            box-shadow: 0 0 0 0.2rem rgba(124, 168, 144, 0.15);
+        }
+
+    .social-btn {
+        background-color: #7ca890;
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        transition: background-color 0.2s;
+    }
+
+        .social-btn:hover {
+            background-color: #668f78;
+            color: #ffffff;
+        }
+
+    .social-link {
+        color: #7ca890;
+        transition: color 0.2s;
+    }
+
+        .social-link:hover {
+            color: #668f78;
+        }
+
+    .social-text-muted {
+        color: #818c99;
+    }
+</style>
+
 <div class="row justify-content-center mt-5">
-    <div class="col-lg-5 col-md-7">
-        <div class="card shadow-sm border-primary border-1 rounded-3">
-            <div class="card-header bg-white border-bottom border-primary text-center py-4">
-                <h3 class="text-primary fw-bold mb-0">Create an Account</h3>
+    <div class="col-lg-5 col-md-7 col-sm-10">
+        <div class="card social-card">
+            <div class="card-header bg-white border-0 text-center pt-4 pb-2" style="border-radius: 12px 12px 0 0;">
+                <h4 class="fw-bold mb-0" style="color: #000;">Create an Account</h4>
             </div>
-            <div class="card-body p-4 p-md-5">
+            <div class="card-body p-4 p-md-4">
                 <form asp-action="Register" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-semibold"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-semibold small text-center"></div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="FirstName" class="form-control border-primary text-dark" placeholder="First Name" />
-                                <label asp-for="FirstName" class="text-secondary">First Name</label>
-                                <span asp-validation-for="FirstName" class="text-danger small"></span>
-                            </div>
+                            <input asp-for="FirstName" class="form-control social-input py-2 px-3" placeholder="First Name" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="LastName" class="form-control border-primary text-dark" placeholder="Last Name" />
-                                <label asp-for="LastName" class="text-secondary">Last Name</label>
-                                <span asp-validation-for="LastName" class="text-danger small"></span>
-                            </div>
+                            <input asp-for="LastName" class="form-control social-input py-2 px-3" placeholder="Last Name" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
                         </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input asp-for="Email" class="form-control border-primary text-dark" placeholder="name@example.com" />
-                        <label asp-for="Email" class="text-secondary">Email address</label>
+                    <div class="mb-3">
+                        <input asp-for="Email" class="form-control social-input py-2 px-3" placeholder="Email address" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
-                    <div class="form-floating mb-4">
-                        <input asp-for="Password" type="password" class="form-control border-primary text-dark" placeholder="Password" />
-                        <label asp-for="Password" class="text-secondary">Password</label>
+                    <div class="mb-4">
+                        <input asp-for="Password" type="password" class="form-control social-input py-2 px-3" placeholder="Password" />
                         <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg py-2 fw-bold shadow-sm">Sign Up</button>
+                        <button type="submit" class="btn social-btn btn-lg py-2 fs-6 fw-semibold">Sign Up</button>
                     </div>
                 </form>
             </div>
-            <div class="card-footer bg-light text-center py-3 border-0">
-                <span class="text-muted">Already have an account?</span>
-                <a asp-controller="Account" asp-action="Login" class="text-primary text-decoration-none fw-bold ms-1">Log in</a>
+            <div class="card-footer bg-white text-center py-4 border-0" style="border-radius: 0 0 12px 12px;">
+                <span class="social-text-muted fs-6">Already have an account?</span>
+                <a asp-controller="Account" asp-action="Login" class="social-link text-decoration-none fw-semibold ms-1">Log in</a>
             </div>
         </div>
     </div>

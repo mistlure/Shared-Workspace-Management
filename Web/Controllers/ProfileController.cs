@@ -15,6 +15,12 @@ namespace Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+
+
+        /// <summary>
+        /// Displays the user's profile information.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -22,6 +28,7 @@ namespace Web.Controllers
 
             var client = _httpClientFactory.CreateClient("MyAPI");
 
+            // Try-catch saves us from potential API errors when fetching user info.
             try
             {
                 ViewBag.User = await client.GetFromJsonAsync<UserResponseDto>($"api/Users/{userId}");
@@ -35,6 +42,7 @@ namespace Web.Controllers
             {
                 var allActive = await client.GetFromJsonAsync<List<OccupancyResponseDto>>("api/Occupancy/active");
 
+                // Filter for the current user.
                 var userOccupancies = allActive?
                     .Where(o => o.UserId == userId)
                     .OrderByDescending(o => o.StartTime)
@@ -44,11 +52,16 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Ошибка при загрузке бронирований: {ex.Message}";
+                TempData["ErrorMessage"] = $"Booking error: {ex.Message}";
                 return View(new List<OccupancyResponseDto>());
             }
         }
 
+        /// <summary>
+        /// Cancels an active booking by sending a request to the API to finish the occupancy.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CancelBooking(int id)
         {

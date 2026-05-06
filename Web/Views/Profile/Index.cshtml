@@ -4,51 +4,135 @@
     ViewData["Title"] = "My Profile";
 }
 
+<style>
+    .social-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e1e3e6;
+        background-color: #ffffff;
+    }
+
+    .bg-theme {
+        background-color: #7ca890 !important;
+        color: #ffffff;
+    }
+
+    .text-theme {
+        color: #7ca890 !important;
+    }
+
+    .btn-theme-outline {
+        color: #7ca890;
+        border: 1px solid #7ca890;
+        background-color: transparent;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-theme-outline:hover {
+            background-color: #7ca890;
+            color: #ffffff;
+        }
+
+    .btn-theme-link {
+        color: #7ca890;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+        .btn-theme-link:hover {
+            color: #668f78;
+        }
+
+    .social-text-muted {
+        color: #818c99;
+    }
+    .btn-soft-danger {
+        color: #e4606d;
+        background-color: rgba(228, 96, 109, 0.1);
+        border: none;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+    }
+
+        .btn-soft-danger:hover {
+            background-color: rgba(228, 96, 109, 0.2);
+            color: #d73a49;
+        }
+</style>
+
 <div class="container mt-5">
     <div class="row g-4">
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm text-center p-4">
-                <div class="mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+            <div class="card social-card text-center p-4">
+                <div class="mx-auto bg-theme rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
                     @user?.FirstName[0]
                 </div>
-                <h3 class="fw-bold mb-1">@user?.FirstName @user?.LastName</h3>
-                <p class="text-muted mb-4">@user?.Email</p>
-                <button class="btn btn-outline-primary btn-sm w-100 mb-2">Edit Profile (Soon)</button>
+                <h3 class="fw-bold mb-1 text-dark">@user?.FirstName @user?.LastName</h3>
+                <p class="social-text-muted mb-4">@user?.Email</p>
+                <button class="btn btn-theme-outline btn-sm w-100 mb-2 fw-semibold">Edit Profile (Soon)</button>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4">
-                <h4 class="fw-bold mb-4 text-primary">My Active Bookings</h4>
+            <div class="card social-card p-4">
+                <h4 class="fw-bold mb-4 text-theme">My Active Bookings</h4>
 
                 @if (TempData["SuccessMessage"] != null)
                 {
-                    <div class="alert alert-success border-0 shadow-sm small">@TempData["SuccessMessage"]</div>
+                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm small" style="border-radius: 8px; background-color: #e8f5ed; color: #4a755d;" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 }
 
                 @if (Model.Any())
                 {
                     <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="text-secondary small text-uppercase">
+                        <table class="table align-middle text-nowrap">
+                            <thead class="social-text-muted small text-uppercase" style="border-bottom: 2px solid #f2f3f5;">
                                 <tr>
-                                    <th>Workplace</th>
-                                    <th>Started</th>
-                                    <th>Ends</th>
-                                    <th>Action</th>
+                                    <th class="fw-semibold pb-3">Workplace</th>
+                                    <th class="fw-semibold pb-3">Started</th>
+                                    <th class="fw-semibold pb-3">Ends</th>
+                                    <th class="fw-semibold pb-3 text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td class="fw-bold text-dark">Desk #@item.WorkplaceId</td>
-                                        <td class="small">@item.StartTime.ToString("g")</td>
-                                        <td class="small">@item.EndTime?.ToString("g")</td>
-                                        <td>
-                                            <form asp-action="CancelBooking" asp-route-id="@item.Id" method="post">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0">Cancel</button>
-                                            </form>
+                                    <tr style="border-bottom: 1px solid #f2f3f5;">
+                                        <td class="fw-bold text-dark py-3">Desk #@item.WorkplaceId</td>
+                                        <td class="social-text-muted py-3">@item.StartTime.ToString("g")</td>
+                                        <td class="social-text-muted py-3">@item.EndTime?.ToString("g")</td>
+                                        <td class="text-end py-3">
+                                            <button type="button" class="btn btn-sm btn-soft-danger fw-semibold px-3" data-bs-toggle="modal" data-bs-target="#cancelModal-@item.Id">
+                                                Cancel
+                                            </button>
+
+                                            <!-- Модальное окно -->
+                                            <div class="modal fade text-start" id="cancelModal-@item.Id" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-sm">
+                                                    <div class="modal-content text-center border-0 shadow-lg" style="border-radius: 12px;">
+                                                        <div class="modal-header border-bottom-0 pb-0">
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body p-4 pt-2">
+                                                            <i class="bi bi-exclamation-circle text-danger mb-3" style="font-size: 3rem; color: #e4606d !important;"></i>
+                                                            <h5 class="fw-bold text-dark mb-3">Cancel Booking?</h5>
+                                                            <p class="social-text-muted small mb-4 text-wrap">Are you sure you want to cancel your booking for <br /><b>Desk #@item.WorkplaceId</b>?</p>
+
+                                                            <form asp-action="CancelBooking" asp-route-id="@item.Id" method="post">
+                                                                <div class="d-flex justify-content-center gap-2">
+                                                                    <button type="button" class="btn btn-light btn-sm px-3 fw-semibold" style="border-radius: 6px;" data-bs-dismiss="modal">Keep It</button>
+                                                                    <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold" style="border-radius: 6px; background-color: #e4606d; border: none;">Yes, Cancel</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -59,8 +143,8 @@
                 else
                 {
                     <div class="text-center py-5">
-                        <p class="text-muted mb-0">You don't have any active bookings.</p>
-                        <a asp-controller="Workspaces" asp-action="Index" class="btn btn-link">Find a desk</a>
+                        <p class="social-text-muted mb-2">You don't have any active bookings.</p>
+                        <a asp-controller="Workspaces" asp-action="Index" class="btn-theme-link">Find a desk &rarr;</a>
                     </div>
                 }
             </div>

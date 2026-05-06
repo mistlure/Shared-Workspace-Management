@@ -17,18 +17,28 @@ namespace Web.Controllers
 
 
 
+        /// <summary>
+        /// Empty GET method to display the registration form. The actual registration logic is handled in the POST method below.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
+        /// <summary>
+        /// Registers a new user by sending their details to the API. If registration is successful, redirects to the login page. If it fails (e.g., email already taken), displays an error message.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Register(UserRegisterDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
 
             var client = _httpClientFactory.CreateClient("MyAPI");
+
             var response = await client.PostAsJsonAsync("api/Users", dto);
 
             if (response.IsSuccessStatusCode)
@@ -40,12 +50,21 @@ namespace Web.Controllers
             return View(dto);
         }
 
+        /// <summary>
+        /// Empty GET method to display the login form. The actual login logic is handled in the POST method below.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
+        /// <summary>
+        /// Logins a user by sending their credentials to the API. If login is successful, creates an authentication cookie and redirects to the workspaces page. If it fails (e.g., invalid email or password), displays an error message.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Login(UserLoginDto dto)
         {
@@ -61,6 +80,7 @@ namespace Web.Controllers
 
                 if (user != null)
                 {
+                    // Create claims for the authenticated user (Cookies)
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -81,6 +101,10 @@ namespace Web.Controllers
             return View(dto);
         }
 
+        /// <summary>
+        /// Logouts the user by clearing the authentication cookie and redirects to the workspaces page.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
@@ -88,6 +112,10 @@ namespace Web.Controllers
             return RedirectToAction("Index", "Workspaces");
         }
     }
+
+    /// <summary>
+    /// Helper class to wrap the API response for login.
+    /// </summary>
     public class LoginResponseWrapper
     {
         public UserResponseDto? Data { get; set; }

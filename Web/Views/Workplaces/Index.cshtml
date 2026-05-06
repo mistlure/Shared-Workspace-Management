@@ -4,24 +4,126 @@
     ViewData["Title"] = "Available Desks";
 }
 
+<style>
+    .social-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e1e3e6;
+        background-color: #ffffff;
+    }
+
+    .text-theme {
+        color: #7ca890 !important;
+    }
+
+    .bg-theme {
+        background-color: #7ca890 !important;
+        color: #ffffff;
+    }
+
+    .btn-theme {
+        background-color: #7ca890;
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        transition: background-color 0.2s;
+    }
+
+        .btn-theme:hover {
+            background-color: #668f78;
+            color: #ffffff;
+        }
+
+    .btn-theme-outline {
+        color: #7ca890;
+        border: 1px solid #7ca890;
+        background-color: transparent;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-theme-outline:hover {
+            background-color: #7ca890;
+            color: #ffffff;
+        }
+
+    .btn-soft-danger {
+        color: #e4606d;
+        background-color: rgba(228, 96, 109, 0.1);
+        border: none;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+        .btn-soft-danger:hover {
+            background-color: rgba(228, 96, 109, 0.2);
+            color: #d73a49;
+        }
+
+    .badge-soft-success {
+        background-color: #e8f5ed;
+        color: #4a755d;
+        border: 1px solid #d1eada;
+    }
+
+    .badge-soft-danger {
+        background-color: rgba(228, 96, 109, 0.1);
+        color: #e4606d;
+        border: 1px solid rgba(228, 96, 109, 0.2);
+    }
+
+    .badge-soft-theme {
+        background-color: rgba(124, 168, 144, 0.1);
+        color: #7ca890;
+        border: 1px solid rgba(124, 168, 144, 0.2);
+    }
+
+    .social-text-muted {
+        color: #818c99;
+    }
+
+    .form-range::-webkit-slider-thumb {
+        background: #7ca890;
+    }
+
+    .form-range::-moz-range-thumb {
+        background: #7ca890;
+    }
+
+    .social-input {
+        background-color: #f2f3f5;
+        border: 1px solid #f2f3f5;
+        border-radius: 8px;
+        color: #000;
+        transition: all 0.2s;
+    }
+
+        .social-input:focus {
+            background-color: #ffffff;
+            border-color: #7ca890;
+            box-shadow: 0 0 0 0.2rem rgba(124, 168, 144, 0.15);
+            outline: none;
+        }
+</style>
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary fw-bold">@ViewData["Title"]</h2>
-        <a asp-controller="Workspaces" asp-action="Index" class="btn btn-outline-primary px-4 fw-semibold shadow-sm">
+        <h2 class="text-theme fw-bold mb-0">@ViewData["Title"]</h2>
+        <a asp-controller="Workspaces" asp-action="Index" class="btn btn-theme-outline px-4 fw-semibold shadow-sm">
             &larr; Back to Workspaces
         </a>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <div class="alert alert-dismissible fade show border-0 shadow-sm small" style="border-radius: 8px; background-color: #e8f5ed; color: #4a755d;" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <div class="alert alert-dismissible fade show border-0 shadow-sm small" style="border-radius: 8px; background-color: rgba(228, 96, 109, 0.1); color: #e4606d;" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -32,33 +134,48 @@
         {
             foreach (var desk in Model)
             {
+                var userDesks = ViewBag.UserOccupiedDesks as List<int> ?? new List<int>();
+                var activeOccupancies = ViewBag.ActiveOccupancies as Dictionary<int, int> ?? new Dictionary<int, int>();
+
+                bool isMyDesk = userDesks.Contains(desk.Id);
+                int myOccupancyId = isMyDesk ? activeOccupancies[desk.Id] : 0;
+                int maxHours = ViewBag.MaxHours ?? 8;
+
                 <div class="col">
-                    <div class="card h-100 shadow-sm border-primary border-1 rounded-3">
-                        <div class="card-header bg-white border-bottom border-primary text-center py-3">
-                            <h5 class="text-primary fw-bold mb-0">@desk.Name</h5>
+                    <div class="card social-card h-100 border-0">
+                        <div class="card-header bg-white text-center py-3" style="border-bottom: 1px solid #f2f3f5; border-radius: 12px 12px 0 0;">
+                            <h5 class="text-dark fw-bold mb-0">@desk.Name</h5>
                         </div>
+
                         <div class="card-body text-center py-4">
                             @if (desk.CurrentStatus == Domain.Enums.WorkplaceStatus.Available)
                             {
-                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill shadow-sm">Available</span>
+                                <span class="badge badge-soft-success fs-6 px-3 py-2 rounded-pill shadow-sm">Available</span>
+                            }
+                            else if (isMyDesk)
+                            {
+                                <span class="badge badge-soft-theme fs-6 px-3 py-2 rounded-pill shadow-sm">
+                                    <i class="bi bi-person-check me-1"></i> Your Booking
+                                </span>
                             }
                             else
                             {
-                                <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill shadow-sm">Occupied</span>
+                                <span class="badge badge-soft-danger fs-6 px-3 py-2 rounded-pill shadow-sm">Occupied</span>
                             }
                         </div>
-                        <div class="card-footer bg-light text-center py-3 border-0">
+
+                        <div class="card-footer bg-white text-center py-3 border-0" style="border-radius: 0 0 12px 12px;">
                             @if (desk.CurrentStatus == Domain.Enums.WorkplaceStatus.Available)
                             {
-                                <button type="button" class="btn btn-primary fw-bold px-4 shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#bookModal-@desk.Id">
+                                <button type="button" class="btn btn-theme fw-semibold px-4 shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#bookModal-@desk.Id">
                                     Book Desk
                                 </button>
 
                                 <div class="modal fade" id="bookModal-@desk.Id" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content text-start border-0 shadow-lg">
-                                            <div class="modal-header border-bottom border-primary">
-                                                <h5 class="modal-title text-primary fw-bold">Confirm Reservation</h5>
+                                        <div class="modal-content text-start border-0 shadow-lg" style="border-radius: 12px;">
+                                            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                                <h5 class="modal-title text-dark fw-bold">Confirm Reservation</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
 
@@ -67,23 +184,19 @@
                                                     <input type="hidden" name="workplaceId" value="@desk.Id" />
                                                     <input type="hidden" name="workspaceId" value="@desk.WorkspaceId" />
 
-                                                    @{
-                                                        int maxHours = ViewBag.MaxHours ?? 8;
-                                                    }
-
-                                                    <div class="mb-4 text-center bg-light rounded-3 py-3 border border-primary border-opacity-25">
-                                                        <span class="text-muted small text-uppercase fw-bold tracking-wide">Selected Desk</span>
-                                                        <h4 class="text-primary fw-bolder mb-0 mt-1">@desk.Name</h4>
+                                                    <div class="mb-4 text-center rounded-3 py-3" style="background-color: #f8f9fa; border: 1px dashed #e1e3e6;">
+                                                        <span class="social-text-muted small text-uppercase fw-bold tracking-wide">Selected Desk</span>
+                                                        <h4 class="text-theme fw-bolder mb-0 mt-1">@desk.Name</h4>
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label text-secondary fw-semibold">Duration (Hours)</label>
+                                                        <label class="form-label text-dark fw-semibold">Duration (Hours)</label>
                                                         <div class="d-flex align-items-center gap-3">
                                                             <input type="range" class="form-range flex-grow-1"
                                                                    min="1" max="@maxHours" step="1" id="durationRange-@desk.Id" value="1"
                                                                    oninput="document.getElementById('durationInput-@desk.Id').value = this.value">
 
-                                                            <input type="number" class="form-control text-center fw-bold text-primary shadow-sm"
+                                                            <input type="number" class="form-control text-center fw-bold text-dark social-input px-2"
                                                                    style="width: 80px; font-size: 1.1rem;"
                                                                    min="1" max="@maxHours" id="durationInput-@desk.Id" name="durationHours" value="1"
                                                                    oninput="
@@ -92,25 +205,55 @@
                                                             document.getElementById('durationRange-@desk.Id').value = this.value;
                                                             ">
                                                         </div>
-                                                        <div class="d-flex justify-content-between text-muted small mt-1">
+                                                        <div class="d-flex justify-content-between social-text-muted small mt-1">
                                                             <span>1h</span>
                                                             <span>@maxHours h</span>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div class="modal-footer border-0 bg-light">
-                                                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">Confirm Booking</button>
+                                                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                                                    <button type="button" class="btn btn-light fw-semibold" style="border-radius: 8px;" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-theme fw-bold px-4 shadow-sm">Confirm Booking</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             }
+                            else if (isMyDesk)
+                            {
+                                <button type="button" class="btn btn-soft-danger fw-bold shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#releaseModal-@desk.Id" title="Release Desk">
+                                    <i class="bi bi-x-lg fs-5"></i>
+                                </button>
+
+                                <div class="modal fade" id="releaseModal-@desk.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                                        <div class="modal-content text-center border-0 shadow-lg" style="border-radius: 12px;">
+                                            <div class="modal-header border-bottom-0 pb-0">
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body p-4 pt-2">
+                                                <i class="bi bi-exclamation-circle text-danger mb-3" style="font-size: 3rem; color: #e4606d !important;"></i>
+                                                <h5 class="fw-bold text-dark mb-3">Release Desk?</h5>
+                                                <p class="social-text-muted small mb-4">Are you sure you want to cancel your booking for <b>@desk.Name</b>?</p>
+
+                                                <form asp-controller="Workplaces" asp-action="Release" method="post">
+                                                    <input type="hidden" name="occupancyId" value="@myOccupancyId" />
+                                                    <input type="hidden" name="workspaceId" value="@desk.WorkspaceId" />
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <button type="button" class="btn btn-light btn-sm px-3 fw-semibold" style="border-radius: 6px;" data-bs-dismiss="modal">No</button>
+                                                        <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold" style="border-radius: 6px; background-color: #e4606d; border: none;">Yes, Release</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                             else
                             {
-                                <button class="btn btn-secondary fw-bold px-4 shadow-sm w-100" disabled>Unavailable</button>
+                                <button class="btn btn-light fw-bold px-4 shadow-sm w-100 text-muted" style="border-radius: 8px; background-color: #f2f3f5; border: none;" disabled>Unavailable</button>
                             }
                         </div>
                     </div>
@@ -120,7 +263,7 @@
         else
         {
             <div class="col-12">
-                <div class="text-center text-muted py-5 bg-white rounded-3 shadow-sm border border-1">
+                <div class="text-center social-text-muted py-5 social-card border-0">
                     <p class="fs-5 mb-0">No desks found for this workspace.</p>
                     <p class="small">Add some workplaces via Swagger API!</p>
                 </div>

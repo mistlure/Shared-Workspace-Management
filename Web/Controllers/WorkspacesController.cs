@@ -14,6 +14,12 @@ namespace Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+
+
+        /// <summary>
+        /// Displays a list of workspaces.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("MyAPI");
