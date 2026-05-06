@@ -33,9 +33,9 @@ namespace Desktop
 
             if (success)
             {
-                StatusTextBlock.Text = "Success!";
-                StatusTextBlock.Foreground = Brushes.Green;
-                MessageBox.Show("Logged in successfully");
+                AdminWindow adminWin = new AdminWindow(_apiService);
+                adminWin.Show();
+                this.Close();
             }
             else
             {

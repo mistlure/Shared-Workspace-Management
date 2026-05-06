@@ -44,6 +44,31 @@ namespace Desktop
             }
             return false;
         }
+
+        public async Task<List<UserResponseDto>> GetUsersAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("api/Users");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<List<UserResponseDto>>(content) ?? new List<UserResponseDto>();
+                }
+                return new List<UserResponseDto>();
+            }
+            catch
+            {
+                return new List<UserResponseDto>();
+            }
+        }
+
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            var response = await _httpClient.DeleteAsync($"api/Users/{userId}");
+            return response.IsSuccessStatusCode;
+        }
     }
 
     public class LoginResponseWrapper

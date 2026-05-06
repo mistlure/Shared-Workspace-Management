@@ -13,5 +13,7 @@ namespace Domain.Interfaces
         Task<User?> GetByEmailAsync(string email);
         Task<int> AddAsync(User user);
         Task<IEnumerable<User>> GetAllAsync();
+
+        Task DeleteAsync(int id);
     }
 }

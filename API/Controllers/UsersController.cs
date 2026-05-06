@@ -127,6 +127,19 @@ namespace API.Controllers
             });
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            await _userRepository.DeleteAsync(id);
+            return Ok();
+        }
+
 
         // ------------------------
 

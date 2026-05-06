@@ -61,5 +61,15 @@ namespace Infrastructure.Repositories
 
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Id = id });
         }
+
+        public async Task DeleteAsync(int id)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync("DELETE FROM Occupancy WHERE UserId = @Id", new { Id = id });
+
+            string sql = "DELETE FROM Users WHERE Id = @Id";
+            await connection.ExecuteAsync(sql, new { Id = id });
+        }
     }
 }
