@@ -105,28 +105,25 @@ namespace Web.Controllers
         /// <param name="durationHours"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Book(int workplaceId, int workspaceId, int durationHours)
+        public async Task<IActionResult> Book(int workplaceId, int workspaceId, int durationHours, bool needsMonitor, string? specialRequests)
         {
-            // Is user authorized?
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-
-
             var startTime = DateTime.Now;
             var endTime = startTime.AddHours(durationHours);
-
-
 
             var dto = new CreateOccupancyDto
             {
                 UserId = userId,
                 WorkplaceId = workplaceId,
                 StartTime = startTime,
-                EndTime = endTime
+                EndTime = endTime,
+                NeedsMonitor = needsMonitor,
+                SpecialRequests = specialRequests
             };
 
             var client = _httpClientFactory.CreateClient("MyAPI");

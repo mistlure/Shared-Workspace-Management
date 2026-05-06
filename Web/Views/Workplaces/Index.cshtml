@@ -82,12 +82,24 @@
         color: #818c99;
     }
 
+
     .form-range::-webkit-slider-thumb {
         background: #7ca890;
     }
 
     .form-range::-moz-range-thumb {
         background: #7ca890;
+    }
+
+
+    .form-check-input:checked {
+        background-color: #7ca890;
+        border-color: #7ca890;
+    }
+
+    .form-check-input:focus {
+        border-color: #7ca890;
+        box-shadow: 0 0 0 0.25rem rgba(124, 168, 144, 0.25);
     }
 
     .social-input {
@@ -189,6 +201,7 @@
                                                         <h4 class="text-theme fw-bolder mb-0 mt-1">@desk.Name</h4>
                                                     </div>
 
+                                                    
                                                     <div class="mb-3">
                                                         <label class="form-label text-dark fw-semibold">Duration (Hours)</label>
                                                         <div class="d-flex align-items-center gap-3">
@@ -210,6 +223,23 @@
                                                             <span>@maxHours h</span>
                                                         </div>
                                                     </div>
+
+                                                    
+                                                    <div class="mb-3 mt-4 pt-4" style="border-top: 1px solid #f2f3f5;">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="monitorSwitch-@desk.Id" name="needsMonitor" value="true">
+                                                            <label class="form-check-label text-dark fw-semibold ms-1 cursor-pointer" for="monitorSwitch-@desk.Id">
+                                                                Require extra monitor
+                                                            </label>
+                                                        </div>
+
+                                                        <div>
+                                                            <label class="form-label text-dark fw-semibold mb-1">Special Requests</label>
+                                                            <textarea class="form-control social-input px-3 py-2" name="specialRequests" rows="2"
+                                                          placeholder="E.g., Need a Mac adapter, window seat..."></textarea>
+                                                        </div>
+                                                    </div>
+
                                                 </div>
 
                                                 <div class="modal-footer border-0 px-4 pb-4 pt-0">

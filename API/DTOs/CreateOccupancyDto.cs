@@ -16,5 +16,10 @@ namespace API.DTOs
         public DateTime StartTime { get; set; }
 
         public DateTime? EndTime { get; set; }
+
+        public bool NeedsMonitor { get; set; }
+
+        [MaxLength(500, ErrorMessage = "Comment cannot exceed 500 characters.")]
+        public string? SpecialRequests { get; set; }
     }
 }
