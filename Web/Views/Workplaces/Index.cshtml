@@ -1,0 +1,59 @@
+﻿@model IEnumerable<API.DTOs.WorkplaceResponseDto>
+
+@{
+    ViewData["Title"] = "Available Desks";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">@ViewData["Title"]</h2>
+        <a asp-controller="Workspaces" asp-action="Index" class="btn btn-outline-primary px-4 fw-semibold shadow-sm">
+            &larr; Back to Workspaces
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var desk in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-primary border-1 rounded-3">
+                        <div class="card-header bg-white border-bottom border-primary text-center py-3">
+                            <h5 class="text-primary fw-bold mb-0">@desk.Name</h5>
+                        </div>
+                        <div class="card-body text-center py-4">
+                            @if (desk.CurrentStatus == Domain.Enums.WorkplaceStatus.Available)
+                            {
+                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill shadow-sm">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill shadow-sm">Occupied</span>
+                            }
+                        </div>
+                        <div class="card-footer bg-light text-center py-3 border-0">
+                            @if (desk.CurrentStatus == Domain.Enums.WorkplaceStatus.Available)
+                            {
+                                <button class="btn btn-primary fw-bold px-4 shadow-sm w-100">Book Desk</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary fw-bold px-4 shadow-sm w-100" disabled>Unavailable</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center text-muted py-5 bg-white rounded-3 shadow-sm border border-1">
+                    <p class="fs-5 mb-0">No desks found for this workspace.</p>
+                    <p class="small">Empty...</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -53,6 +53,24 @@ namespace API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("workspace/{workspaceId}")]
+        public async Task<IActionResult> GetByWorkspaceId(int workspaceId)
+        {
+            var allWorkplaces = await _workplaceRepository.GetAllAsync();
+
+            var response = allWorkplaces
+                .Where(w => w.WorkspaceId == workspaceId)
+                .Select(w => new WorkplaceResponseDto
+                {
+                    Id = w.Id,
+                    WorkspaceId = w.WorkspaceId,
+                    Name = w.Name,
+                    CurrentStatus = w.CurrentStatus
+                }).ToList();
+
+            return Ok(response);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateWorkplaceDto dto)
         {

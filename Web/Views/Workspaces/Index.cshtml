@@ -28,7 +28,7 @@
                         <td class="align-middle">$@item.PricePerHour</td>
                         <td class="align-middle">@item.MaxOccupationHours hrs</td>
                         <td class="align-middle">
-                            <a href="#" class="btn btn-primary btn-sm px-3 shadow-sm">View Desks</a>
+                            <a asp-controller="Workplaces" asp-action="Index" asp-route-workspaceId="@item.Id" class="btn btn-primary btn-sm px-3 shadow-sm">View Desks</a>
                         </td>
                     </tr>
                 }
