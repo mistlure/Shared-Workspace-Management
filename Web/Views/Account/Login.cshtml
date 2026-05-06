@@ -1,0 +1,46 @@
+﻿@model API.DTOs.UserLoginDto
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm border-primary border-1 rounded-3">
+            <div class="card-header bg-white border-bottom border-primary text-center py-4">
+                <h3 class="text-primary fw-bold mb-0">Welcome Back</h3>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-semibold"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control border-primary text-dark" placeholder="name@example.com" />
+                        <label asp-for="Email" class="text-secondary">Email address</label>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input asp-for="Password" type="password" class="form-control border-primary text-dark" placeholder="Password" />
+                        <label asp-for="Password" class="text-secondary">Password</label>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg py-2 fw-bold shadow-sm">Log In</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light text-center py-3 border-0">
+                <span class="text-muted">Don't have an account?</span>
+                <a asp-controller="Account" asp-action="Register" class="text-primary text-decoration-none fw-bold ms-1">Sign up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -83,5 +83,31 @@ namespace API.Controllers
 
             return Ok(new { data = response, message = "User created successfully!" });
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
+        {
+            if (dto == null) return BadRequest();
+
+            var users = await _userRepository.GetAllAsync();
+
+            var user = users.FirstOrDefault(u => u.Email == dto.Email && u.PasswordHash == dto.Password);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid email or password." });
+            }
+
+            var response = new UserResponseDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt
+            };
+
+            return Ok(new { data = response, message = "Login successful!" });
+        }
     }
 }
