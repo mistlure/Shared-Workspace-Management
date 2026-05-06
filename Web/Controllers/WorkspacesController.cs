@@ -1,8 +1,10 @@
 ﻿using API.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers
 {
+    [Authorize]
     public class WorkspacesController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
