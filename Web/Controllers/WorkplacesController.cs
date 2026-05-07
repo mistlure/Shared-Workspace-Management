@@ -34,13 +34,21 @@ namespace Web.Controllers
 
                 // 8 is the default max hours if the API call fails or returns invalid data.
                 int maxHours = 8;
+                decimal pricePerHour = 0;
+
                 try
                 {
                     var workspace = await client.GetFromJsonAsync<WorkspaceResponseDto>($"api/Workspaces/{workspaceId}");
-                    if (workspace != null && workspace.MaxOccupationHours > 0) maxHours = workspace.MaxOccupationHours;
+                    if (workspace != null)
+                    {
+                        if (workspace.MaxOccupationHours > 0) maxHours = workspace.MaxOccupationHours;
+                        pricePerHour = workspace.PricePerHour;
+                    }
                 }
                 catch { }
+
                 ViewBag.MaxHours = maxHours;
+                ViewBag.PricePerHour = pricePerHour;
 
 
 
@@ -105,7 +113,7 @@ namespace Web.Controllers
         /// <param name="durationHours"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Book(int workplaceId, int workspaceId, int durationHours, bool needsMonitor, string? specialRequests)
+        public async Task<IActionResult> Book(int workplaceId, int workspaceId, int durationHours, bool needsMonitor, string? specialRequests, decimal pricePerHour)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdString, out int userId))
@@ -116,6 +124,8 @@ namespace Web.Controllers
             var startTime = DateTime.Now;
             var endTime = startTime.AddHours(durationHours);
 
+            var totalPrice = durationHours * pricePerHour;
+
             var dto = new CreateOccupancyDto
             {
                 UserId = userId,
@@ -123,7 +133,8 @@ namespace Web.Controllers
                 StartTime = startTime,
                 EndTime = endTime,
                 NeedsMonitor = needsMonitor,
-                SpecialRequests = specialRequests
+                SpecialRequests = specialRequests,
+                TotalPrice = totalPrice
             };
 
             var client = _httpClientFactory.CreateClient("MyAPI");

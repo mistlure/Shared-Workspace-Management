@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -13,34 +14,59 @@ namespace API.Controllers
         [HttpGet]
         public IActionResult GetApiDescription()
         {
-            // Get the assembly containing the controllers.
             var assembly = Assembly.GetExecutingAssembly();
 
             var controllers = assembly.GetTypes()
                 .Where(type => typeof(ControllerBase).IsAssignableFrom(type) && !type.IsAbstract)
-                .Select(type => new
+                .Select(type =>
                 {
-                    ControllerName = type.Name.Replace("Controller", ""),
-                    Endpoints = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                        .Where(m => m.GetCustomAttributes<HttpMethodAttribute>().Any())
-                        .Select(method => new
-                        {
-                            MethodName = method.Name,
-                            HttpVerb = method.GetCustomAttribute<HttpMethodAttribute>()?.HttpMethods.First(),
+                    // Получаем базовый роут контроллера (например, "api/Users")
+                    var controllerName = type.Name.Replace("Controller", "");
+                    var controllerRoute = type.GetCustomAttribute<RouteAttribute>()?.Template?.Replace("[controller]", controllerName) ?? $"api/{controllerName}";
 
-                            Route = method.GetCustomAttribute<RouteAttribute>()?.Template
-                                    ?? method.GetCustomAttribute<HttpMethodAttribute>()?.Template
-                                    ?? "Default",
-
-                            Parameters = method.GetParameters().Select(p => new
+                    return new
+                    {
+                        ControllerName = controllerName,
+                        Endpoints = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                            .Where(m => m.GetCustomAttributes<HttpMethodAttribute>().Any())
+                            .Select(method =>
                             {
-                                Name = p.Name,
-                                Type = p.ParameterType.Name
-                            }),
+                                var httpVerb = method.GetCustomAttribute<HttpMethodAttribute>()?.HttpMethods.First() ?? "UNKNOWN";
 
-                            ReturnType = method.ReturnType.Name
-                        })
+                                var actionRoute = method.GetCustomAttribute<RouteAttribute>()?.Template ?? method.GetCustomAttribute<HttpMethodAttribute>()?.Template;
+                                var fullRoute = string.IsNullOrEmpty(actionRoute) ? controllerRoute : $"{controllerRoute}/{actionRoute}";
+
+                                
+                                var returnType = method.ReturnType;
+                                if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+                                {
+                                    returnType = returnType.GetGenericArguments()[0];
+                                }
+                                if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ActionResult<>))
+                                {
+                                    returnType = returnType.GetGenericArguments()[0];
+                                }
+                                string cleanReturnType = returnType.Name;
+
+                                var parameters = method.GetParameters().Select(p => new
+                                {
+                                    Name = p.Name,
+                                    Type = p.ParameterType.Name,
+                                    Source = p.GetCustomAttribute<FromBodyAttribute>() != null ? "Body" : "Route/Query"
+                                });
+
+                                return new
+                                {
+                                    MethodName = method.Name,
+                                    HttpVerb = httpVerb,
+                                    Route = "/" + fullRoute,
+                                    Parameters = parameters,
+                                    ReturnType = cleanReturnType == "IActionResult" ? "JSON Response" : cleanReturnType
+                                };
+                            })
+                    };
                 });
+
             return Ok(new
             {
                 Project = "Shared Workspace Management API",
@@ -49,6 +75,5 @@ namespace API.Controllers
                 Controllers = controllers
             });
         }
-
     }
 }

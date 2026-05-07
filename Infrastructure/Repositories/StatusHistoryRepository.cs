@@ -40,5 +40,23 @@ namespace Infrastructure.Repositories
 
             return await connection.QueryAsync<StatusHistory>(sql, new { WorkplaceId = workplaceId });
         }
+
+        public async Task<IEnumerable<StatusHistory>> GetAllAsync()
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            string sql = @"
+                SELECT 
+                    sh.Id, 
+                    sh.WorkplaceId, 
+                    sh.Status, 
+                    sh.ChangedAt,
+                    wp.Name as WorkplaceName
+                FROM StatusHistory sh
+                LEFT JOIN Workplaces wp ON sh.WorkplaceId = wp.Id
+                ORDER BY sh.ChangedAt DESC";
+
+            return await connection.QueryAsync<StatusHistory>(sql);
+        }
     }
 }

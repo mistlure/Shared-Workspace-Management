@@ -10,7 +10,7 @@ namespace Domain.Interfaces
     public interface IWorkspaceRepository
     {
         Task<Workspace?> GetByIdAsync(int id);
-        Task<IEnumerable<Workspace>> GetAllAsync();
+        Task<IEnumerable<Workspace>> GetAllAsync(string? sortBy = null, bool isDescending = false);
         Task<int> AddAsync(Workspace workspace);
         Task UpdateAsync(Workspace workspace);
         Task DeleteAsync(int id);

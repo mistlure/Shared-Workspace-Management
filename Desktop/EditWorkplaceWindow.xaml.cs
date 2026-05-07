@@ -20,40 +20,63 @@ namespace Desktop
                 Title = "Edit Workplace";
                 WorkspaceIdTextBox.Text = _workplace.WorkspaceId.ToString();
                 NameTextBox.Text = _workplace.Name;
-                StatusTextBox.Text = ((int)_workplace.CurrentStatus).ToString();
                 WorkspaceIdTextBox.IsEnabled = false;
+
+                int currentStatusId = (int)_workplace.CurrentStatus;
+                foreach (System.Windows.Controls.ComboBoxItem item in StatusComboBox.Items)
+                {
+                    if (item.Tag != null && item.Tag.ToString() == currentStatusId.ToString())
+                    {
+                        StatusComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
             }
             else
             {
                 Title = "Add Workplace";
-                StatusTextBox.Text = "0";
-                StatusTextBox.IsEnabled = false;
+                StatusComboBox.SelectedIndex = 0;
+                StatusComboBox.IsEnabled = false;
             }
         }
 
-
-
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            if (int.TryParse(WorkspaceIdTextBox.Text, out int wId) && int.TryParse(StatusTextBox.Text, out int statusInt))
+            if (string.IsNullOrWhiteSpace(NameTextBox.Text))
+            {
+                MessageBox.Show("Please enter a name for the workplace.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (int.TryParse(WorkspaceIdTextBox.Text, out int wId))
             {
                 if (_workplace != null)
                 {
                     _workplace.Name = NameTextBox.Text;
-                    _workplace.CurrentStatus = (Domain.Enums.WorkplaceStatus)statusInt;
-                    if (await _apiService.UpdateWorkplaceAsync(_workplace)) DialogResult = true;
-                    else MessageBox.Show("Error updating workplace.");
+
+                    if (StatusComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem &&
+                        int.TryParse(selectedItem.Tag?.ToString(), out int statusInt))
+                    {
+                        _workplace.CurrentStatus = (Domain.Enums.WorkplaceStatus)statusInt;
+                    }
+
+                    if (await _apiService.UpdateWorkplaceAsync(_workplace))
+                        DialogResult = true;
+                    else
+                        MessageBox.Show("Error updating workplace.");
                 }
                 else
                 {
                     var newDto = new CreateWorkplaceDto { WorkspaceId = wId, Name = NameTextBox.Text };
-                    if (await _apiService.CreateWorkplaceAsync(newDto)) DialogResult = true;
-                    else MessageBox.Show("Error creating workplace.");
+                    if (await _apiService.CreateWorkplaceAsync(newDto))
+                        DialogResult = true;
+                    else
+                        MessageBox.Show("Error creating workplace.");
                 }
             }
             else
             {
-                MessageBox.Show("Workspace ID and Status must be integers! Do not leave them empty.");
+                MessageBox.Show("Workspace ID must be a valid integer!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

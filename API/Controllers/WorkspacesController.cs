@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class WorkspacesController : ControllerBase
@@ -21,9 +21,9 @@ namespace API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? sortBy = null, [FromQuery] bool isDescending = false)
         {
-            var workspaces = await _workspaceRepository.GetAllAsync();
+            var workspaces = await _workspaceRepository.GetAllAsync(sortBy, isDescending);
 
             var response = workspaces.Select(w => new WorkspaceResponseDto
             {

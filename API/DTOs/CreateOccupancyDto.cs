@@ -21,5 +21,6 @@ namespace API.DTOs
 
         [MaxLength(500, ErrorMessage = "Comment cannot exceed 500 characters.")]
         public string? SpecialRequests { get; set; }
+        public decimal? TotalPrice { get; set; }
     }
 }

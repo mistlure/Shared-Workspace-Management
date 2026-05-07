@@ -97,23 +97,25 @@
                                     <th class="fw-semibold pb-3">Workplace</th>
                                     <th class="fw-semibold pb-3">Started</th>
                                     <th class="fw-semibold pb-3">Ends</th>
+                                    <th class="fw-semibold pb-3">Price</th>
                                     <th class="fw-semibold pb-3 text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    
                                     <tr id="booking-row-@item.Id" style="border-bottom: 1px solid #f2f3f5;">
                                         <td class="fw-bold text-dark py-3">Desk #@item.WorkplaceId</td>
                                         <td class="social-text-muted py-3">@item.StartTime.ToString("g")</td>
                                         <td class="social-text-muted py-3">@item.EndTime?.ToString("g")</td>
+                                        <td class="fw-bold text-theme py-3">
+                                            @(item.TotalPrice.HasValue? item.TotalPrice.Value.ToString("N0") + " CZK" : "-")
+                                        </td>
                                         <td class="text-end py-3">
                                             <button type="button" class="btn btn-sm btn-soft-danger fw-semibold px-3" data-bs-toggle="modal" data-bs-target="#cancelModal-@item.Id">
                                                 Cancel
                                             </button>
 
-                                            
                                             <div class="modal fade text-start" id="cancelModal-@item.Id" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered modal-sm">
                                                     <div class="modal-content text-center border-0 shadow-lg" style="border-radius: 12px;">
@@ -128,7 +130,6 @@
                                                             <div class="d-flex justify-content-center gap-2">
                                                                 <button type="button" class="btn btn-light btn-sm px-3 fw-semibold" style="border-radius: 6px;" data-bs-dismiss="modal">Keep It</button>
 
-                                                                
                                                                 <button type="button" onclick="cancelBooking(@item.Id)" class="btn btn-danger btn-sm px-3 fw-bold" style="border-radius: 6px; background-color: #e4606d; border: none;">
                                                                     Yes, Cancel
                                                                 </button>
@@ -160,24 +161,20 @@
     <script>
         async function cancelBooking(id) {
             try {
-                
                 let response = await fetch(`/Profile/CancelBooking/${id}`, {
                     method: 'POST'
                 });
 
                 if (response.ok) {
-                    
                     let modalEl = document.getElementById(`cancelModal-${id}`);
                     let modalInstance = bootstrap.Modal.getInstance(modalEl);
                     modalInstance.hide();
 
-                    
                     let row = document.getElementById(`booking-row-${id}`);
                     row.style.transition = "opacity 0.4s ease, transform 0.4s ease";
                     row.style.opacity = "0";
-                    row.style.transform = "translateX(-20px)"; 
+                    row.style.transform = "translateX(-20px)";
 
-                    
                     setTimeout(() => {
                         row.remove();
                     }, 400);

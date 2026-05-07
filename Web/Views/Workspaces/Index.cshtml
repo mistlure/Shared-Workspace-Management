@@ -58,7 +58,7 @@
                             <tr style="border-bottom: 1px solid #f2f3f5;">
                                 <td class="py-3 px-4"><strong class="text-dark">@item.Name</strong></td>
                                 <td class="py-3 px-4 social-text-muted">@item.Location</td>
-                                <td class="py-3 px-4 text-theme fw-semibold">$@item.PricePerHour</td>
+                                <td class="py-3 px-4 text-theme fw-semibold">@item.PricePerHour.ToString("N0") CZK</td>
                                 <td class="py-3 px-4 social-text-muted">@item.MaxOccupationHours hrs</td>
                                 <td class="py-3 px-4 text-end">
                                     <a asp-controller="Workplaces" asp-action="Index" asp-route-workspaceId="@item.Id" class="btn btn-theme btn-sm px-4 fw-semibold shadow-sm">View Desks</a>

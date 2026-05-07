@@ -37,6 +37,23 @@ namespace API.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var history = await _statusHistoryRepository.GetAllAsync();
+
+            var response = history.Select(h => new StatusHistoryResponseDto
+            {
+                Id = h.Id,
+                WorkplaceId = h.WorkplaceId,
+                WorkplaceName = h.WorkplaceName,
+                Status = h.Status,
+                ChangedAt = h.ChangedAt
+            }).ToList();
+
+            return Ok(response);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStatusHistoryDto dto)
         {

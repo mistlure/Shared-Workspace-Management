@@ -133,7 +133,9 @@ namespace API.Controllers
                     UserId = dto.UserId,
                     WorkplaceId = dto.WorkplaceId,
                     StartTime = dto.StartTime,
-                    EndTime = dto.EndTime
+                    EndTime = dto.EndTime,
+                    TotalPrice = dto.TotalPrice
+
                 };
 
                 var createdOccupancy = await _occupancyService.CreateOccupancyAsync(occupancy);

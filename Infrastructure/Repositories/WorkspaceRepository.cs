@@ -38,31 +38,38 @@ namespace Infrastructure.Repositories
         {
             using var connection = _connectionFactory.CreateConnection();
 
-            // В SQLite лучше удалять зависимости по очереди. 
-            // Сначала удаляем записи об использовании (Occupancy) всех столов в этом здании
             await connection.ExecuteAsync(@"
         DELETE FROM Occupancy 
         WHERE WorkplaceId IN (SELECT Id FROM Workplaces WHERE WorkspaceId = @Id)",
                 new { Id = id });
 
-            // Затем удаляем историю статусов (StatusHistory) всех столов в этом здании
             await connection.ExecuteAsync(@"
         DELETE FROM StatusHistory 
         WHERE WorkplaceId IN (SELECT Id FROM Workplaces WHERE WorkspaceId = @Id)",
                 new { Id = id });
 
-            // Теперь удаляем сами столы (Workplaces), принадлежащие этому зданию
             await connection.ExecuteAsync("DELETE FROM Workplaces WHERE WorkspaceId = @Id", new { Id = id });
 
-            // И только теперь удаляем само здание (Workspace)
             await connection.ExecuteAsync("DELETE FROM Workspaces WHERE Id = @Id", new { Id = id });
         }
 
-        public async Task<IEnumerable<Workspace>> GetAllAsync()
+        public async Task<IEnumerable<Workspace>> GetAllAsync(string? sortBy = null, bool isDescending = false)
         {
             using var connection = _connectionFactory.CreateConnection();
 
             string sql = "SELECT * FROM Workspaces";
+
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                var allowedColumns = new List<string> { "Id", "Name", "Location", "PricePerHour", "MaxOccupationHours" };
+
+                var actualColumn = allowedColumns.FirstOrDefault(c => c.Equals(sortBy, StringComparison.OrdinalIgnoreCase));
+
+                if (actualColumn != null)
+                {
+                    sql += $" ORDER BY {actualColumn} {(isDescending ? "DESC" : "ASC")}";
+                }
+            }
 
             return await connection.QueryAsync<Workspace>(sql);
         }

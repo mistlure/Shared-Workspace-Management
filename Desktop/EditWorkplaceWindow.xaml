@@ -63,8 +63,12 @@
                 <TextBlock Text="Name / Number" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
                 <TextBox x:Name="NameTextBox" Margin="0,0,0,15"/>
 
-                <TextBlock x:Name="StatusLabel" Text="Status (0=Avail, 1=Occ, 2=Block)" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <TextBox x:Name="StatusTextBox" Margin="0,0,0,25"/>
+                <TextBlock x:Name="StatusLabel" Text="Status" Foreground="#818c99" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                <ComboBox x:Name="StatusComboBox" Margin="0,0,0,25" FontSize="14" Padding="6,4">
+                    <ComboBoxItem Content="Available" Tag="1"/>
+                    <ComboBoxItem Content="Occupied" Tag="2"/>
+                    <ComboBoxItem Content="Blocked" Tag="3"/>
+                </ComboBox>
 
                 <Button Content="Save Workplace" Height="40" Click="Save_Click"/>
             </StackPanel>

@@ -20,6 +20,34 @@ namespace Desktop
             _httpClient.BaseAddress = new Uri("https://localhost:7199/");
         }
 
+
+
+        public async Task<bool> FinishOccupancyAsync(int occupancyId)
+        {
+            var response = await _httpClient.PostAsync($"api/Occupancy/{occupancyId}/finish", null);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<OccupancyResponseDto?> GetActiveOccupancyByWorkplaceIdAsync(int workplaceId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Occupancy/workplace/{workplaceId}/active");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<OccupancyResponseDto>(content);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+
         #region ================= AUTHENTICATION =================
 
         public async Task<bool> LoginAsync(string email, string password)
@@ -164,6 +192,24 @@ namespace Desktop
         }
 
         #endregion
+
+        public async Task<List<StatusHistoryResponseDto>> GetStatusHistoryAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("api/StatusHistory");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<List<StatusHistoryResponseDto>>(content) ?? new List<StatusHistoryResponseDto>();
+                }
+                return new List<StatusHistoryResponseDto>();
+            }
+            catch
+            {
+                return new List<StatusHistoryResponseDto>();
+            }
+        }
     }
 
     #region ================= HELPER CLASSES =================
